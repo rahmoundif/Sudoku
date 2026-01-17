@@ -1,7 +1,6 @@
 import type { MessageProps } from "../types/global.types";
 
-
-export default function Message (props: MessageProps) {
+export default function Message(props: MessageProps) {
 	const { message, type } = props;
 
 	if (!message) return null;
@@ -22,4 +21,4 @@ export default function Message (props: MessageProps) {
 			{message}
 		</div>
 	);
-};
+}

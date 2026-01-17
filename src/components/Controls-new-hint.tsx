@@ -2,7 +2,6 @@ import { FaLightbulb, FaRegLightbulb } from "react-icons/fa";
 import { FiRefreshCw } from "react-icons/fi";
 import type { ControlsProps } from "../types/global.types";
 
-
 export function ControlsNewHint({
 	onNewGame,
 	onHint,
@@ -12,15 +11,17 @@ export function ControlsNewHint({
 	return (
 		<div className="flex gap-4 flex-wrap justify-between items-center">
 			<button
+				type="button"
 				onClick={() => onNewGame(currentDifficulty)}
-				className=""
+				className="cursor-pointer"
 				aria-label="New Game"
 			>
 				<FiRefreshCw size={18} fill="green" />
 			</button>
 			<button
+				type="button"
 				onClick={onHint}
-				className="flex"
+				className="flex cursor-pointer"
 				aria-label={`Hint (${hintsRemaining} remaining)`}
 			>
 				{hintsRemaining > 0 ? (

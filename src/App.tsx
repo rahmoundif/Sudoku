@@ -30,13 +30,11 @@ export default function App() {
 		fetchBoard();
 	}, [fetchBoard]);
 
-
 	const handleNumberClick = (number: number) => {
 		if (!selectedCell) return;
 
 		const { row, col } = selectedCell;
 
-    
 		if (initialBoard[row][col] !== 0) {
 			return;
 		}
@@ -84,4 +82,4 @@ export default function App() {
 			</div>
 		</div>
 	);
-};
+}
