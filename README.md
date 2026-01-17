@@ -2,42 +2,44 @@
 
 An interactive Sudoku puzzle game with algorithmic puzzle generation and solving.
 
-[![React](https://img.shields.io/badge/React-19.2-61dafb?logo=react)](https://react.dev)
-[![TypeScript](https://img.shields.io/badge/TypeScript-blue?logo=typescript)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-7.3-646cff?logo=vite)](https://vitejs.dev)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.1-38b2ac?logo=tailwind-css)](https://tailwindcss.com)
-[![Biome](https://img.shields.io/badge/Biome-2.3-60a5fa?logo=biome)](https://biomejs.dev)
+[![React](https://img.shields.io/badge/React-19.2.3-61dafb?logo=react)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-7.3.1-646cff?logo=vite)](https://vitejs.dev)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.1.18-38b2ac?logo=tailwind-css)](https://tailwindcss.com)
+[![Biome](https://img.shields.io/badge/Biome-2.3.11-60a5fa?logo=biome)](https://biomejs.dev)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
 ## Overview
 
 This implementation uses constraint satisfaction and backtracking algorithms to generate valid Sudoku puzzles and solve them with hints.
 
-## Algorithm Details
+## Algorithms
 
-### Puzzle Generation
+This project uses four main algorithms:
 
-The puzzle generator uses a backtracking algorithm with constraint propagation:
+**Issue:** The previous approach sucked pretty much... I realized that I had :
 
-1. **Start with an empty grid** - Initialize a 9x9 grid with no values
-2. **Fill with backtracking** - Recursively fill cells with valid numbers (1-9) ensuring no duplicates in rows, columns, or 3x3 boxes
-3. **Remove numbers** - Strategically remove filled values to create the puzzle while maintaining a unique solution
+- **No validation** - Invalid moves were allowed, breaking game rules ex input a duplicate in a 3\*3 grid cell...
+- **Unsolvable puzzles** - Random number removal created puzzles with no solution...
+- **No systematic solving** - Hints were unreliable.
+- **Repetitive puzzles** - Every puzzle looked the same, no variety ex: the top row was always at the same place...
 
-### Puzzle Solving
+## Update (17/01/2026)
 
-The solver implements the following techniques:
+### Implementation
 
-- **Backtracking Algorithm** - Tests each empty cell with valid candidates and backtracks if contradictions occur
-- **Constraint Propagation** - Eliminates impossible values based on Sudoku rules before guessing
-- **Hint System** - Provides next solvable cell recommendations using constraint logic
+The `sudokuUtils.ts` file implements the core algorithms:
 
-### Core Logic
-
-The algorithm tracks:
-
-- Valid candidates for each cell (values 1-9 not in same row, column, or box)
-- Constraint violations to prune the search space early
-- Unique solvability verification to ensure valid puzzles
+- **`createEmptyBoard()`** - Initializes an empty 9x9 board filled with 0s.
+- **`solve()`** - Backtracking algorithm. Fills empty cells (0s) by trying numbers 1-9, checking validity, and backtracking when stuck.
+- **`isValid()`** - Core validation. Checks if a number exists in the row, column, or 3x3 box.
+- **`generateCompleteBoard()`** - Uses backtracking to create a full valid puzzle.
+- **`generateSudokuBoard(difficulty)`** - Cell removal algorithm. Removes 35-55 cells based on difficulty to create the puzzle.
+- **`isValidInput()`** - Real-time validation. Ensures user input follows all Sudoku rules before placing.
+- **`getConflictingPositions()`** - Highlights which cells conflict with a given position.
+- **`handleNumberInput()`** - Processes number input from the numpad with validation callbacks.
+- **`getCorrectNumber()`** - Hint system. Solves the board to find the correct answer for any cell.
+- **`validateBoard()`** - Checks if entire board state is valid.
 
 ## License
 
