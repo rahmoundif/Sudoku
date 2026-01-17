@@ -1,21 +1,9 @@
 import type { CellProps } from "../types/global.types";
 
 export default function Cell(props: CellProps) {
-	const {
-		value,
-		isFixed,
-		isSelected,
-		hasConflict,
-		borderClass,
-		onClick,
-		onChange,
-	} = props;
+	const { value, isFixed, isSelected, borderClass, onClick, onChange } = props;
 
-	const stateClasses = [
-		isSelected ? "selected" : "",
-		isFixed ? "fixed" : "",
-		hasConflict ? "conflict" : "",
-	]
+	const stateClasses = [isSelected ? "selected" : "", isFixed ? "fixed" : ""]
 		.filter(Boolean)
 		.join(" ");
 

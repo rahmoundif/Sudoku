@@ -2,7 +2,7 @@ import Social from "./social-footer";
 
 function Footer() {
 	return (
-		<footer className="max-w-lg container px-5 py-8 mx-auto flex items-center sm:flex-row flex-col">
+		<footer className="max-w-lg container px-5 py-3 mx-auto flex items-center sm:flex sm:flex-row max-md:flex-col">
 			<a
 				href="https://www.rahmoundif.dev"
 				className="flex title-font font-medium items-center md:justify-start justify-center text-gray-900"

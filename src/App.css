@@ -10,7 +10,6 @@
 }
 
 .sudoku-container.shake {
-	box-shadow: 0 0 10px #dc2626;
 	animation: shake 0.5s ease-in-out;
 }
 
@@ -82,15 +81,16 @@
 	box-shadow: inset 0 0 0 2px #6366f1;
 }
 
-/* Conflict cells (validation errors) */
-.sudoku-grid .conflict {
-	background-color: rgba(239, 68, 68, 0.1);
-	animation: pulse 1s infinite;
+/* Valid input animation */
+.sudoku-grid .valid-flash {
+	background-color: rgba(34, 197, 94, 0.3);
+	animation: greenFade 0.5s ease-out;
 }
 
-.sudoku-grid .conflict input {
-	color: #dc2626;
-	font-weight: bold;
+/* Invalid input animation on container */
+.sudoku-container.invalid {
+	box-shadow: 0 0 10px #dc2626;
+	animation: shake 0.5s ease-in-out;
 }
 
 /* Animations */
@@ -125,13 +125,12 @@
 	}
 }
 
-@keyframes pulse {
-	0%,
-	100% {
-		opacity: 1;
+@keyframes greenFade {
+	0% {
+		background-color: rgba(34, 197, 94, 0.3);
 	}
-	50% {
-		opacity: 0.7;
+	100% {
+		background-color: transparent;
 	}
 }
 

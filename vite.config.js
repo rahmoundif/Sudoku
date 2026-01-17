@@ -9,6 +9,16 @@ export default defineConfig({
 		tailwindcss(),
 		VitePWA({
 			registerType: "autoUpdate",
+			manifest: {
+				name: "DR Sudoku",
+				short_name: "DR Sudoku",
+				start_url: "/",
+				display: "standalone",
+				background_color: "#ffffff",
+				theme_color: "#42b883",
+				lang: "en",
+				scope: "/",
+			},
 		}),
 	],
 });

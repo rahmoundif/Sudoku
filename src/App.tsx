@@ -1,13 +1,13 @@
 import "./App.css";
 import { useEffect } from "react";
-import Header from "./components/Header.tsx";
-import Footer from "./components/Footer.tsx";
-import Message from "./components/Message.tsx";
-import SudokuGrid from "./components/SudokuGrid.tsx";
-import NumberPad from "./components/NumberPad.tsx";
 import Controls from "./components/Controls.tsx";
-import { useSudokuGame } from "./hooks/useSudokuGame.ts";
 import { ControlsNewHint } from "./components/Controls-new-hint.tsx";
+import Footer from "./components/Footer.tsx";
+import Header from "./components/Header.tsx";
+import Message from "./components/Message.tsx";
+import NumberPad from "./components/NumberPad.tsx";
+import SudokuGrid from "./components/SudokuGrid.tsx";
+import { useSudokuGame } from "./hooks/useSudokuGame.ts";
 
 export default function App() {
 	const {
@@ -16,8 +16,8 @@ export default function App() {
 		selectedCell,
 		difficulty,
 		hintsUsed,
-		isShaking,
-		conflicts,
+		isInvalid,
+		validFlashes,
 		message,
 		messageType,
 		fetchBoard,
@@ -67,8 +67,8 @@ export default function App() {
 						board={board}
 						initialBoard={initialBoard}
 						selectedCell={selectedCell}
-						conflicts={conflicts}
-						isShaking={isShaking}
+						validFlashes={validFlashes}
+						isInvalid={isInvalid}
 						onCellClick={handleCellClick}
 						onCellChange={handleCellChange}
 					/>

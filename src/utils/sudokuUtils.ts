@@ -1,279 +1,236 @@
-// Sudoku utility functions for validation, solving, and generation
-
-export type SudokuBoard = number[][];
+type SudokuBoard = number[][];
+type Position = [number, number]; // [row, col]
 
 /**
- * Randomize the positions of numbers in a solved Sudoku board
+ * Create an empty 9x9 board
  */
-function randomizeBoardPositions(board: SudokuBoard): void {
-  // Apply random transformations that preserve Sudoku validity
-
-  // Randomly apply transformations
-  const transformations = Math.floor(Math.random() * 8);
-
-  switch (transformations) {
-    case 0:
-      // Rotate 90 degrees clockwise
-      rotateBoard90(board);
-      break;
-    case 1:
-      // Rotate 180 degrees
-      rotateBoard180(board);
-      break;
-    case 2:
-      // Rotate 270 degrees clockwise
-      rotateBoard270(board);
-      break;
-    case 3:
-      // Reflect horizontally
-      reflectHorizontal(board);
-      break;
-    case 4:
-      // Reflect vertically
-      reflectVertical(board);
-      break;
-    case 5:
-      // Rotate 90 + reflect horizontal
-      rotateBoard90(board);
-      reflectHorizontal(board);
-      break;
-    case 6:
-      // Rotate 180 + reflect vertical
-      rotateBoard180(board);
-      reflectVertical(board);
-      break;
-    case 7:
-      // No transformation (original board)
-      break;
-  }
+export function createEmptyBoard(): SudokuBoard {
+	return Array(9)
+		.fill(null)
+		.map(() => Array(9).fill(0));
 }
 
 /**
- * Rotate board 90 degrees clockwise
+ * Generate a complete valid Sudoku board
  */
-function rotateBoard90(board: SudokuBoard): void {
-  const temp = board.map((row) => [...row]);
-  for (let i = 0; i < 9; i++) {
-    for (let j = 0; j < 9; j++) {
-      board[j][8 - i] = temp[i][j];
-    }
-  }
+export function generateCompleteBoard(): SudokuBoard {
+	const board: SudokuBoard = Array(9)
+		.fill(null)
+		.map(() => Array(9).fill(0));
+
+	if (!solve(board)) {
+		throw new Error("Failed to generate complete Sudoku board");
+	}
+
+	return board;
 }
 
 /**
- * Rotate board 180 degrees
+ * Solve Sudoku using backtracking algorithm
  */
-function rotateBoard180(board: SudokuBoard): void {
-  const temp = board.map((row) => [...row]);
-  for (let i = 0; i < 9; i++) {
-    for (let j = 0; j < 9; j++) {
-      board[8 - i][8 - j] = temp[i][j];
-    }
-  }
+function solve(board: SudokuBoard): boolean {
+	for (let row = 0; row < 9; row++) {
+		for (let col = 0; col < 9; col++) {
+			if (board[row][col] === 0) {
+				for (let num = 1; num <= 9; num++) {
+					if (isValid(board, row, col, num)) {
+						board[row][col] = num;
+						if (solve(board)) {
+							return true;
+						}
+						board[row][col] = 0; // Backtrack
+					}
+				}
+				return false;
+			}
+		}
+	}
+	return true;
 }
 
 /**
- * Rotate board 270 degrees clockwise (90 degrees counter-clockwise)
+ * Check if placing a number at position is valid
  */
-function rotateBoard270(board: SudokuBoard): void {
-  const temp = board.map((row) => [...row]);
-  for (let i = 0; i < 9; i++) {
-    for (let j = 0; j < 9; j++) {
-      board[8 - j][i] = temp[i][j];
-    }
-  }
-}
 
-/**
- * Reflect board horizontally (left-right flip)
- */
-function reflectHorizontal(board: SudokuBoard): void {
-  for (let i = 0; i < 9; i++) {
-    for (let j = 0; j < 4; j++) {
-      [board[i][j], board[i][8 - j]] = [board[i][8 - j], board[i][j]];
-    }
-  }
-}
-
-/**
- * Reflect board vertically (up-down flip)
- */
-function reflectVertical(board: SudokuBoard): void {
-  for (let i = 0; i < 4; i++) {
-    [board[i], board[8 - i]] = [board[8 - i], board[i]];
-  }
-}
-
-/**
- * Shuffle array in place using Fisher-Yates algorithm
- */
-function _shuffleArray<T>(array: T[]): void {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-}
-
-/**
- * Check if placing a number at a specific position is valid
- */
 export function isValid(
-  board: SudokuBoard,
-  row: number,
-  col: number,
-  num: number,
+	board: SudokuBoard,
+	row: number,
+	col: number,
+	num: number,
 ): boolean {
-  // Check row
-  for (let x = 0; x < 9; x++) {
-    if (board[row][x] === num && x !== col) return false;
-  }
+	// Check row (horizontal line) - ALL digits 1-9 must be unique
+	for (let i = 0; i < 9; i++) {
+		if (board[row][i] === num) return false;
+	}
 
-  // Check column
-  for (let x = 0; x < 9; x++) {
-    if (board[x][col] === num && x !== row) return false;
-  }
+	// Check column (vertical line) - ALL digits 1-9 must be unique
+	for (let i = 0; i < 9; i++) {
+		if (board[i][col] === num) return false;
+	}
 
-  // Check 3x3 subgrid
-  const startRow = Math.floor(row / 3) * 3;
-  const startCol = Math.floor(col / 3) * 3;
+	// Check 3x3 box - ALL digits 1-9 must be unique in each box
+	const boxRow = Math.floor(row / 3) * 3;
+	const boxCol = Math.floor(col / 3) * 3;
+	for (let i = 0; i < 3; i++) {
+		for (let j = 0; j < 3; j++) {
+			if (board[boxRow + i][boxCol + j] === num) return false;
+		}
+	}
 
-  for (let i = 0; i < 3; i++) {
-    for (let j = 0; j < 3; j++) {
-      if (
-        board[startRow + i][startCol + j] === num &&
-        (startRow + i !== row || startCol + j !== col)
-      ) {
-        return false;
-      }
-    }
-  }
-
-  return true;
+	return true;
 }
 
 /**
- * Solve the Sudoku board using backtracking
- */
-export function solve(board: SudokuBoard): boolean {
-  for (let i = 0; i < 9; i++) {
-    for (let j = 0; j < 9; j++) {
-      if (board[i][j] === 0) {
-        for (let k = 1; k <= 9; k++) {
-          if (isValid(board, i, j, k)) {
-            board[i][j] = k;
-            if (solve(board)) {
-              return true;
-            } else {
-              board[i][j] = 0;
-            }
-          }
-        }
-        return false;
-      }
-    }
-  }
-  return true;
-}
-
-/**
- * Generate a new Sudoku board with the specified difficulty
+ * Generate puzzle by removing numbers from complete board
  */
 export function generateSudokuBoard(
-  difficulty: string = "medium",
+	difficulty: string = "medium",
 ): SudokuBoard {
-  const board = Array(9)
-    .fill(null)
-    .map(() => Array(9).fill(0));
+	const completeBoard = generateCompleteBoard();
+	const puzzle = completeBoard.map((row) => [...row]);
 
-  // Fill the board completely first
-  if (!solve(board)) {
-    throw new Error("Failed to generate valid Sudoku board");
-  }
+	// Determine how many cells to remove based on difficulty
+	let cellsToRemove = 0;
+	switch (difficulty) {
+		case "easy":
+			cellsToRemove = 35;
+			break;
+		case "medium":
+			cellsToRemove = 45;
+			break;
+		case "hard":
+			cellsToRemove = 55;
+			break;
+	}
 
-  // Randomize the positions of numbers for variety
-  randomizeBoardPositions(board);
+	// Remove cells randomly - for standard Sudoku, this typically results in unique solutions
+	let removed = 0;
+	while (removed < cellsToRemove) {
+		const row = Math.floor(Math.random() * 9);
+		const col = Math.floor(Math.random() * 9);
 
-  // Determine how many cells to remove based on difficulty
-  let toRemove: number;
-  switch (difficulty) {
-    case "easy":
-      toRemove = Math.floor(Math.random() * 10) + 36; // 36-45 removed
-      break;
-    case "veteran":
-      toRemove = Math.floor(Math.random() * 10) + 55; // 55-64 removed
-      break;
-    case "difficult":
-      toRemove = Math.floor(Math.random() * 7) + 49; // 49-55 removed
-      break;
-    default:
-      toRemove = Math.floor(Math.random() * 5) + 45; // 45-49 removed
-      break;
-  }
+		if (puzzle[row][col] !== 0) {
+			puzzle[row][col] = 0;
+			removed++;
+		}
+	}
 
-  // Create array of all positions and shuffle them
-  const positions: [number, number][] = [];
-  for (let i = 0; i < 9; i++) {
-    for (let j = 0; j < 9; j++) {
-      positions.push([i, j]);
-    }
-  }
-
-  // Fisher-Yates shuffle
-  for (let i = positions.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [positions[i], positions[j]] = [positions[j], positions[i]];
-  }
-
-  // Remove cells randomly
-  for (let k = 0; k < toRemove; k++) {
-    const [r, c] = positions[k];
-    board[r][c] = 0;
-  }
-
-  return board;
+	return puzzle;
 }
 
 /**
- * Validate if the current board state is valid
+ * Validate if a number can be placed at a position
  */
-export function validateBoard(board: SudokuBoard): boolean {
-  // Check all filled cells are valid
-  for (let row = 0; row < 9; row++) {
-    for (let col = 0; col < 9; col++) {
-      if (board[row][col] !== 0) {
-        // Temporarily set to 0 to check if valid
-        const num = board[row][col];
-        board[row][col] = 0;
-        const isValidPlacement = isValid(board, row, col, num);
-        board[row][col] = num; // Restore
 
-        if (!isValidPlacement) return false;
-      }
-    }
-  }
-  return true;
+export function isValidInput(
+	board: SudokuBoard,
+	row: number,
+	col: number,
+	num: number,
+): boolean {
+	// Check if position is empty (0)
+	if (board[row][col] !== 0) return false;
+
+	// Check if number is valid (1-9)
+	if (num < 1 || num > 9) return false;
+
+	// Check if placing this number would be valid (row, column, box)
+	return isValid(board, row, col, num);
+}
+
+/**
+ * Get all positions that conflict with a given position
+ */
+export function getConflictingPositions(
+	board: SudokuBoard,
+	row: number,
+	col: number,
+): Position[] {
+	const conflicts: Position[] = [];
+
+	// Check same row (horizontal line)
+	for (let c = 0; c < 9; c++) {
+		if (c !== col && board[row][c] !== 0) {
+			conflicts.push([row, c]);
+		}
+	}
+
+	// Check same column (vertical line)
+	for (let r = 0; r < 9; r++) {
+		if (r !== row && board[r][col] !== 0) {
+			conflicts.push([r, col]);
+		}
+	}
+
+	// Check same 3x3 box
+	const boxRow = Math.floor(row / 3) * 3;
+	const boxCol = Math.floor(col / 3) * 3;
+	for (let i = 0; i < 3; i++) {
+		for (let j = 0; j < 3; j++) {
+			const r = boxRow + i;
+			const c = boxCol + j;
+			if (r !== row && c !== col && board[r][c] !== 0) {
+				conflicts.push([r, c]);
+			}
+		}
+	}
+
+	return conflicts;
+}
+
+/**
+ * Handle number input from numpad
+ */
+export function handleNumberInput(
+	board: SudokuBoard,
+	row: number,
+	col: number,
+	num: number,
+	onValidInput: () => void,
+	onInvalidInput: () => void,
+): boolean {
+	if (isValidInput(board, row, col, num)) {
+		board[row][col] = num;
+		onValidInput();
+		return true;
+	} else {
+		onInvalidInput();
+		return false;
+	}
 }
 
 /**
  * Get the correct number for a specific position by solving
  */
 export function getCorrectNumber(
-  board: SudokuBoard,
-  row: number,
-  col: number,
+	board: SudokuBoard,
+	row: number,
+	col: number,
 ): number | null {
-  const solvedBoard = board.map((r) => [...r]);
-  if (solve(solvedBoard)) {
-    return solvedBoard[row][col];
-  }
-  return null;
+	const solvedBoard = board.map((r) => [...r]);
+	if (solve(solvedBoard)) {
+		return solvedBoard[row][col];
+	}
+	return null;
 }
 
 /**
- * Create an empty 9x9 board
+ * Validate if the current board state is valid
  */
-export function createEmptyBoard(): SudokuBoard {
-  return Array(9)
-    .fill(null)
-    .map(() => Array(9).fill(0));
+export function validateBoard(board: SudokuBoard): boolean {
+	// Check all filled cells are valid
+	for (let row = 0; row < 9; row++) {
+		for (let col = 0; col < 9; col++) {
+			if (board[row][col] !== 0) {
+				// Temporarily set to 0 to check if valid
+				const num = board[row][col];
+				board[row][col] = 0;
+				const isValidPlacementCheck = isValid(board, row, col, num);
+				board[row][col] = num; // Restore
+
+				if (!isValidPlacementCheck) return false;
+			}
+		}
+	}
+	return true;
 }

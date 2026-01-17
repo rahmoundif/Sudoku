@@ -2,7 +2,6 @@ export interface CellProps {
 	value: number;
 	isFixed: boolean;
 	isSelected: boolean;
-	hasConflict: boolean;
 	hints: number[];
 	borderClass: string;
 	onClick: () => void;
@@ -35,8 +34,8 @@ export interface SudokuGridProps {
 	board: number[][];
 	initialBoard: number[][];
 	selectedCell: SelectedCell | null;
-	conflicts: Set<string>;
-	isShaking: boolean;
+	validFlashes: Set<string>;
+	isInvalid: boolean;
 	onCellClick: (row: number, col: number) => void;
 	onCellChange: (row: number, col: number, value: string) => void;
 }
