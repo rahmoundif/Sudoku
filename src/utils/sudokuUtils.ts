@@ -1,6 +1,4 @@
-type SudokuBoard = number[][];
-type Position = [number, number]; // [row, col]
-
+import type { SudokuBoard, Position } from "../types/global.types";
 /**
  * Create an empty 9x9 board
  */
@@ -28,6 +26,12 @@ export function generateCompleteBoard(): SudokuBoard {
 /**
  * Solve Sudoku using backtracking algorithm
  */
+
+export function hasAtLeastOneSolution(board: SudokuBoard): boolean {
+  const copy = board.map(r => [...r]);
+  return solve(copy);
+}
+
 function solve(board: SudokuBoard): boolean {
 	for (let row = 0; row < 9; row++) {
 		for (let col = 0; col < 9; col++) {
@@ -58,26 +62,28 @@ export function isValid(
 	col: number,
 	num: number,
 ): boolean {
-	// Check row (horizontal line) - ALL digits 1-9 must be unique
-	for (let i = 0; i < 9; i++) {
-		if (board[row][i] === num) return false;
-	}
+	// Check row 1-9 must be unique
+  for (let i = 0; i < 9; i++) {
+    if (i !== col && board[row][i] === num) return false;
+  }
 
-	// Check column (vertical line) - ALL digits 1-9 must be unique
-	for (let i = 0; i < 9; i++) {
-		if (board[i][col] === num) return false;
-	}
+	// Check column 1-9 must be unique
+ for (let i = 0; i < 9; i++) {
+    if (i !== row && board[i][col] === num) return false;
+  }
 
-	// Check 3x3 box - ALL digits 1-9 must be unique in each box
-	const boxRow = Math.floor(row / 3) * 3;
-	const boxCol = Math.floor(col / 3) * 3;
-	for (let i = 0; i < 3; i++) {
-		for (let j = 0; j < 3; j++) {
-			if (board[boxRow + i][boxCol + j] === num) return false;
-		}
-	}
+	// Check 3x3 box 1-9 must be unique 
+const boxRow = Math.floor(row / 3) * 3;
+  const boxCol = Math.floor(col / 3) * 3;
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 3; j++) {
+      const r = boxRow + i;
+      const c = boxCol + j;
+      if ((r !== row || c !== col) && board[r][c] === num) return false;
+    }
+  }
 
-	return true;
+  return true;
 }
 
 /**
@@ -93,7 +99,7 @@ export function generateSudokuBoard(
 	let cellsToRemove = 0;
 	switch (difficulty) {
 		case "easy":
-			cellsToRemove = 35;
+			cellsToRemove = 25;
 			break;
 		case "medium":
 			cellsToRemove = 45;
@@ -103,7 +109,7 @@ export function generateSudokuBoard(
 			break;
 	}
 
-	// Remove cells randomly - for standard Sudoku, this typically results in unique solutions
+	// Remove cells randomly 
 	let removed = 0;
 	while (removed < cellsToRemove) {
 		const row = Math.floor(Math.random() * 9);
@@ -148,14 +154,14 @@ export function getConflictingPositions(
 ): Position[] {
 	const conflicts: Position[] = [];
 
-	// Check same row (horizontal line)
+	// Check same row 
 	for (let c = 0; c < 9; c++) {
 		if (c !== col && board[row][c] !== 0) {
 			conflicts.push([row, c]);
 		}
 	}
 
-	// Check same column (vertical line)
+	// Check same column 
 	for (let r = 0; r < 9; r++) {
 		if (r !== row && board[r][col] !== 0) {
 			conflicts.push([r, col]);
@@ -169,7 +175,7 @@ export function getConflictingPositions(
 		for (let j = 0; j < 3; j++) {
 			const r = boxRow + i;
 			const c = boxCol + j;
-			if (r !== row && c !== col && board[r][c] !== 0) {
+			if ((r !== row || c !== col) && board[r][c] !== 0) {
 				conflicts.push([r, c]);
 			}
 		}

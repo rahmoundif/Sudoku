@@ -39,3 +39,12 @@ export interface SudokuGridProps {
 	onCellClick: (row: number, col: number) => void;
 	onCellChange: (row: number, col: number, value: string) => void;
 }
+
+export interface SelectedCell {
+	row: number;
+	col: number;
+}
+
+
+export type SudokuBoard = number[][];
+export type Position = [number, number];

@@ -1,31 +1,23 @@
-import { useCallback, useState } from "react";
+import { hasAtLeastOneSolution } from "../utils/sudokuUtils.ts";
+import { useState, useCallback } from "react";
 import {
 	createEmptyBoard,
 	generateSudokuBoard,
 	getCorrectNumber,
 	isValid,
-	type SudokuBoard,
 	validateBoard,
 } from "../utils/sudokuUtils.ts";
-
-export interface SelectedCell {
-	row: number;
-	col: number;
-}
+import type { SudokuBoard } from "../types/global.types.ts";
+import type { SelectedCell } from "../types/global.types.ts";
 
 export function useSudokuGame() {
-	// Game state
 	const [board, setBoard] = useState<SudokuBoard>(createEmptyBoard);
-	const [initialBoard, setInitialBoard] =
-		useState<SudokuBoard>(createEmptyBoard);
+	const [initialBoard, setInitialBoard] = useState<SudokuBoard>(createEmptyBoard);
 	const [selectedCell, setSelectedCell] = useState<SelectedCell | null>(null);
-	const [difficulty, setDifficulty] = useState<string>("medium");
+	const [difficulty, setDifficulty] = useState<string>("easy");
 	const [hintsUsed, setHintsUsed] = useState<number>(0);
 	const [isInvalid, setIsInvalid] = useState<boolean>(false);
-
 	const [validFlashes, setValidFlashes] = useState<Set<string>>(new Set());
-
-	// UI state
 	const [message, setMessage] = useState<string>("");
 	const [messageType, setMessageType] = useState<string>("");
 
@@ -57,69 +49,80 @@ export function useSudokuGame() {
 		(row: number, col: number, value: string) => {
 			// Prevent changing fixed cells
 			if (initialBoard[row][col] !== 0) return;
+			 if (!(value === "" || (value >= "1" && value <= "9"))) return;
 
-			if (value === "" || (value >= "1" && value <= "9")) {
-				const numValue = value === "" ? 0 : parseInt(value, 10);
-				const newBoard = board.map((r) => [...r]);
-				newBoard[row][col] = numValue;
+    const numValue = value === "" ? 0 : parseInt(value, 10);
 
-				// Check if this input creates a conflict
-				if (numValue !== 0 && !isValid(board, row, col, numValue)) {
-					// Trigger invalid animation
-					setIsInvalid(true);
-					setTimeout(() => setIsInvalid(false), 500);
-					return; // Don't update the board if invalid
-				}
+    // Build candidate board
+    const candidate = board.map((r) => [...r]);
+    candidate[row][col] = numValue;
 
-				// Valid input: flash green
-				const cellKey = `${row}-${col}`;
-				setValidFlashes((prev) => new Set(prev).add(cellKey));
-				setTimeout(() => {
-					setValidFlashes((prev) => {
-						const newSet = new Set(prev);
-						newSet.delete(cellKey);
-						return newSet;
-					});
-				}, 500);
+    // 1) Local validity (avoid self-check issue by clearing cell before validating)
+    if (numValue !== 0) {
+      const localCheck = board.map((r) => [...r]);
+      localCheck[row][col] = 0;
 
-				setBoard(newBoard);
+      if (!isValid(localCheck, row, col, numValue)) {
+        setIsInvalid(true);
+        setTimeout(() => setIsInvalid(false), 500);
+        return;
+      }
 
-				// Check if board is now complete and valid
-				let allFilled = true;
-				for (let r = 0; r < 9; r++) {
-					for (let c = 0; c < 9; c++) {
-						if (newBoard[r][c] === 0) {
-							allFilled = false;
-							break;
-						}
-					}
-					if (!allFilled) break;
-				}
+      // 2) Global solvability
+      const solvabilityCheck = board.map((r) => [...r]);
+      solvabilityCheck[row][col] = numValue;
 
-				if (allFilled && validateBoard(newBoard)) {
-					// Board is complete and valid!
-					setMessage("Congratulations!");
-					setMessageType("success");
+      if (!hasAtLeastOneSolution(solvabilityCheck)) {
+        setIsInvalid(true);
+        setTimeout(() => setIsInvalid(false), 500);
+        return;
+      }
+    }
 
-					// Generate new board after a short delay
-					setTimeout(() => {
-						fetchBoard();
-					}, 2000);
-				}
-			}
-		},
-		[board, initialBoard, fetchBoard],
-	);
+    // Commit (only after all validations pass)
+    setBoard(candidate);
+
+    // Valid input: flash green
+    const cellKey = `${row}-${col}`;
+    setValidFlashes((prev) => new Set(prev).add(cellKey));
+    setTimeout(() => {
+      setValidFlashes((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(cellKey);
+        return newSet;
+      });
+    }, 500);
+
+    // Completion check
+    let allFilled = true;
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        if (candidate[r][c] === 0) {
+          allFilled = false;
+          break;
+        }
+      }
+      if (!allFilled) return;
+    }
+
+    if (allFilled && validateBoard(candidate)) {
+      setMessage("Congratulations!");
+      setMessageType("success");
+      setTimeout(() => fetchBoard(), 2000);
+    }
+  },
+  [board, initialBoard, fetchBoard],
+);
 
 	// Handle cell selection
 	const handleCellClick = useCallback((row: number, col: number) => {
 		setSelectedCell({ row, col });
 	}, []);
 
-	// Handle hint button - randomly fills an empty cell
+	// Handle hint button will randomly fill an empty cell
 	const handleHintToggle = useCallback(() => {
 		if (hintsUsed >= 3) {
-			return; // No hints remaining, but no message as requested
+			return;
 		}
 
 		// Find all empty cells
@@ -133,7 +136,7 @@ export function useSudokuGame() {
 		}
 
 		if (emptyCells.length === 0) {
-			return; // No empty cells available
+			return;
 		}
 
 		// Randomly select an empty cell
@@ -164,7 +167,6 @@ export function useSudokuGame() {
 	}, [board, initialBoard, hintsUsed]);
 
 	return {
-		// State
 		board,
 		initialBoard,
 		selectedCell,
@@ -174,8 +176,6 @@ export function useSudokuGame() {
 		validFlashes,
 		message,
 		messageType,
-
-		// Actions
 		fetchBoard,
 		handleCellChange,
 		handleCellClick,
