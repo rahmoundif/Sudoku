@@ -31,20 +31,9 @@ export default function Controls(props: ControlsProps) {
 				</button>
 				<button
 					type="button"
-					onClick={() => onNewGame("difficult")}
+					onClick={() => onNewGame("hard")}
 					className={`px-3 py-1.5 text-xs font-medium border rounded-md transition-colors cursor-pointer ${
-						currentDifficulty === "difficult"
-							? "bg-green-600 text-black border-green-600"
-							: "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
-					}`}
-				>
-					Hard
-				</button>
-				<button
-					type="button"
-					onClick={() => onNewGame("veteran")}
-					className={`px-3 py-1.5 text-xs font-medium border rounded-md transition-colors cursor-pointer ${
-						currentDifficulty === "veteran"
+						currentDifficulty === "hard"
 							? "bg-green-600 text-black border-green-600"
 							: "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
 					}`}

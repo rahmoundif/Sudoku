@@ -139,7 +139,7 @@ export function useSudokuGame() {
 			return;
 		}
 
-		// Randomly select an empty cell
+		// Randomly select an empty cellp" h
 		const randomIndex = Math.floor(Math.random() * emptyCells.length);
 		const [row, col] = emptyCells[randomIndex];
 

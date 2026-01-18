@@ -8,6 +8,7 @@ import Message from "./components/Message.tsx";
 import NumberPad from "./components/NumberPad.tsx";
 import SudokuGrid from "./components/SudokuGrid.tsx";
 import { useSudokuGame } from "./hooks/useSudokuGame.ts";
+import Logo from "./components/logo.tsx";
 
 export default function App() {
 	const {
@@ -44,7 +45,11 @@ export default function App() {
 
 	return (
 		<div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-200 p-4">
+			
 			<div className="max-w-4xl mx-auto flex flex-col items-center">
+				<div className="max-sm:absolute max-sm:top-3 max-sm:left-3">
+				<Logo />
+				</div>
 				<Header />
 				<Controls
 					onNewGame={(newDifficulty) => fetchBoard(newDifficulty)}
@@ -77,7 +82,6 @@ export default function App() {
 						disabled={!selectedCell}
 					/>
 				</section>
-
 				<Footer />
 			</div>
 		</div>

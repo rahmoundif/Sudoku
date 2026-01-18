@@ -8,7 +8,7 @@ function Social() {
 				href="https://github.com/rahmoundif"
 				target="_blank"
 				rel="noopener noreferrer"
-				className="text-gray-500 hover:text-gray-700 ml-3"
+				className="text-gray-500 hover:text-gray-700"
 				aria-label="GitHub"
 			>
 				<FaGithub size={20} />

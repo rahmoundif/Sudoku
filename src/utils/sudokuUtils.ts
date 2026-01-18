@@ -90,7 +90,7 @@ const boxRow = Math.floor(row / 3) * 3;
  * Generate puzzle by removing numbers from complete board
  */
 export function generateSudokuBoard(
-	difficulty: string = "medium",
+	difficulty: string = "easy"
 ): SudokuBoard {
 	const completeBoard = generateCompleteBoard();
 	const puzzle = completeBoard.map((row) => [...row]);
@@ -99,7 +99,7 @@ export function generateSudokuBoard(
 	let cellsToRemove = 0;
 	switch (difficulty) {
 		case "easy":
-			cellsToRemove = 25;
+			cellsToRemove = 35;
 			break;
 		case "medium":
 			cellsToRemove = 45;
